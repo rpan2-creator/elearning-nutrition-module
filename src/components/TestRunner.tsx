@@ -12,6 +12,7 @@ export interface StoredAnswer {
   id: string;
   answer: unknown;
   correct: boolean | null;
+  skipped?: boolean;
 }
 
 export function answersKey(which: "pre" | "post") {
@@ -46,25 +47,25 @@ export default function TestRunner({ which }: { which: "pre" | "post" }) {
 
   const total = form.form.length;
   const ready =
-    item.type === "text" ? typeof value === "string" && value.trim().length > 3 :
+    item.type === "text" ? typeof value === "string" && value.trim().length > 0 :
     item.type === "multi" ? Array.isArray(value) && value.length > 0 : value !== null;
 
-  async function next() {
+  async function next(skipped = false) {
     if (!item || !form || !session) return;
-    const correct = isCorrect(item, value);
+    const correct = skipped ? (item.type === "text" ? null : false) : isCorrect(item, value);
     track({
       phase: which,
       screen: `${which}-${item.id}`,
-      event_type: "answer",
+      event_type: skipped ? "skip" : "answer",
       item_id: item.id,
       kc: item.kc,
-      response: value,
+      response: skipped ? null : value,
       correct,
       attempt: changes.current,
       duration_ms: performance.now() - shownAt.current,
-      meta: { form: form.name, position: index + 1 },
+      meta: { form: form.name, position: index + 1, skipped },
     });
-    const all = [...answers, { id: item.id, answer: value, correct }];
+    const all = [...answers, { id: item.id, answer: skipped ? null : value, correct, skipped }];
     setAnswers(all);
     if (index + 1 < total) {
       setIndex(index + 1);
@@ -91,14 +92,14 @@ export default function TestRunner({ which }: { which: "pre" | "post" }) {
       <FlowHeader phase={which} right={`${index + 1} of ${total}`} />
       <main className="mx-auto max-w-2xl px-5 py-10 sm:py-14">
         <div className="h-1.5 overflow-hidden rounded-full bg-line" aria-hidden>
-          <div className="h-full rounded-full bg-leaf transition-[width] duration-300" style={{ width: `${(index / total) * 100}%` }} />
+          <div className="h-full rounded-full bg-red transition-[width] duration-300" style={{ width: `${(index / total) * 100}%` }} />
         </div>
         <p className="mt-6 text-[14px] text-muted">
-          {which === "pre" ? "Pre-check" : "Post-check"} · answer as best you can; there&rsquo;s no feedback until the end.
+          {which === "pre" ? "Pre-check" : "Post-check"} · answer as best you can, or skip if you have no idea. No feedback until the end.
         </p>
         <h1 className="mt-3 text-[clamp(22px,3vw,28px)] font-semibold leading-snug">{item.prompt}</h1>
         {item.image && (
-          <img src={item.image} alt="" className="food mt-6 h-40 w-auto sm:h-48" draggable={false} />
+          <img src={item.image} alt="" className="illus mt-6 h-36 w-36 sm:h-44 sm:w-44" />
         )}
         <div className="mt-8">
           {item.type === "text" ? (
@@ -125,8 +126,11 @@ export default function TestRunner({ which }: { which: "pre" | "post" }) {
             />
           )}
         </div>
-        <div className="mt-10 flex justify-end">
-          <Button onClick={next} disabled={!ready}>
+        <div className="mt-10 flex items-center justify-between gap-4">
+          <button onClick={() => next(true)} className="rounded-full px-4 py-2.5 text-[15px] font-medium text-muted underline-offset-4 hover:text-ink hover:underline">
+            Skip this question
+          </button>
+          <Button onClick={() => next()} disabled={!ready}>
             {index + 1 < total ? "Next question" : which === "pre" ? "Finish and start learning" : "Finish and see results"}
           </Button>
         </div>

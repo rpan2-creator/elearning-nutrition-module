@@ -55,7 +55,7 @@ export function FlowHeader({ phase, right }: { phase: Phase; right?: React.React
                   state === "now"
                     ? "rounded-full bg-ink px-3 py-1 font-semibold text-white"
                     : state === "done"
-                      ? "px-3 py-1 text-leaf"
+                      ? "px-3 py-1 text-red"
                       : "px-3 py-1 text-muted"
                 }
               >
@@ -90,7 +90,7 @@ export function Button({
       disabled={disabled}
       className={
         variant === "solid"
-          ? "inline-flex items-center rounded-full bg-ink px-6 py-3 text-[16px] font-semibold text-white transition-colors hover:bg-leaf disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+          ? "inline-flex items-center rounded-full bg-ink px-6 py-3 text-[16px] font-semibold text-white transition-colors hover:bg-red disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
           : "inline-flex items-center rounded-full border border-line bg-tray px-5 py-2.5 text-[15px] font-medium transition-colors hover:border-ink"
       }
     >

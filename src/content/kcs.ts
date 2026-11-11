@@ -3,6 +3,7 @@ export const KCS = {
   macro_roles: "Macronutrient roles",
   multi_roles: "Foods with several roles",
   product_diff: "Similar foods, different nutrition",
+  carb_amounts: "Carbohydrate in common portions",
   energy_density: "Energy per gram",
   energy_calc: "Energy from a label",
   energy_use: "Daily energy use (BMR, activity)",

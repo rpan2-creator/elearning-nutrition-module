@@ -1,31 +1,43 @@
 @import "tailwindcss";
 
 /*
-  Palette: a dining-hall tray seen in daylight.
+  Palette taken from realfood.gov: oxblood-black, warm cream, and a ladder of reds.
   Macronutrient colors are functional — every screen uses the same color for the
   same role, so learners can read a plate by color alone.
 */
 :root {
-  --porcelain: #f4f6f1;
+  --porcelain: #fdfbee;
+  --night: #110000;
+  --night-2: #2a0606;
+  --cream-2: #f3f0d6;
   --tray: #ffffff;
-  --ink: #1b2620;
-  --muted: #5b685f;
-  --line: #d7ded4;
-  --leaf: #2e7d4f;
-  --protein: #a23b5c;
-  --carb: #b9850f;
-  --fat: #6c7d1b;
-  --fiber: #2e7d4f;
-  --wrong: #b4412b;
+  --ink: #110000;
+  --muted: #6f6060;
+  --line: #e7e1c8;
+  --red: #d50000;
+  --red-2: #b50000;
+  --red-3: #920000;
+  --ok: #110000;
+  --protein: #8f1d3a;
+  --carb: #b86e00;
+  --fat: #8a6d1d;
+  --fiber: #4f7a2b;
+  --wrong: #d50000;
 }
 
 @theme inline {
   --color-porcelain: var(--porcelain);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
+  --color-cream-2: var(--cream-2);
   --color-tray: var(--tray);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-leaf: var(--leaf);
+  --color-red: var(--red);
+  --color-red-2: var(--red-2);
+  --color-red-3: var(--red-3);
+  --color-ok: var(--ok);
   --color-protein: var(--protein);
   --color-carb: var(--carb);
   --color-fat: var(--fat);
@@ -59,7 +71,7 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--leaf);
+  outline: 3px solid var(--red);
   outline-offset: 3px;
   border-radius: 6px;
 }
@@ -71,4 +83,15 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* idle float for illustrated food */
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+.bob { animation: bob 5s ease-in-out infinite; }
+.illus { user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

@@ -63,7 +63,7 @@ export function Practice({ item, onDone }: { item: PracticeItem; onDone: () => v
   return (
     <div>
       <p className="text-[19px] font-semibold leading-snug">{item.prompt}</p>
-      {item.image && <img src={item.image} alt="" className="food mt-4 h-36 w-auto" draggable={false} />}
+      {item.image && <img src={item.image} alt="" className="illus mt-4 h-32 w-32" />}
       <div className="mt-5">
         <Options
           name={item.id}
@@ -87,7 +87,7 @@ export function Practice({ item, onDone }: { item: PracticeItem; onDone: () => v
       {revealed && (
         <div
           role="status"
-          className={`mt-5 rounded-2xl p-4 text-[15px] leading-relaxed ${wasRight ? "bg-[color-mix(in_srgb,var(--leaf)_10%,white)]" : "bg-[color-mix(in_srgb,var(--wrong)_8%,white)]"}`}
+          className={`mt-5 rounded-2xl p-4 text-[15px] leading-relaxed ${wasRight ? "bg-cream-2" : "bg-[color-mix(in_srgb,var(--wrong)_8%,white)]"}`}
         >
           <p className="font-semibold">{wasRight ? "That's right." : attempts.current >= 2 ? "Here's the answer." : "Not quite — try once more."}</p>
           {(wasRight || attempts.current >= 2) && <p className="mt-1">{item.explain}</p>}
@@ -155,7 +155,7 @@ export function Explain({
           Compare with an example
         </button>
       ) : (
-        <div className="mt-4 rounded-2xl bg-[color-mix(in_srgb,var(--leaf)_10%,white)] p-4 text-[15px] leading-relaxed">
+        <div className="mt-4 rounded-2xl bg-cream-2 p-4 text-[15px] leading-relaxed">
           <p className="font-semibold">One strong answer</p>
           <p className="mt-1">{example}</p>
           <p className="mt-2 text-muted">Does yours name the food, its role, and why it helps? If it only says &ldquo;it&rsquo;s healthy,&rdquo; add the role.</p>

@@ -31,7 +31,7 @@ export function Options({
       {options.map((o) => {
         const on = picked(o.id);
         let tone = on ? "border-ink bg-tray" : "border-line bg-tray hover:border-muted";
-        if (revealed && isRight(o.id)) tone = "border-leaf bg-[color-mix(in_srgb,var(--leaf)_8%,white)]";
+        if (revealed && isRight(o.id)) tone = "border-ok bg-cream-2";
         else if (revealed && on) tone = "border-wrong bg-[color-mix(in_srgb,var(--wrong)_7%,white)]";
         return (
           <label
@@ -51,7 +51,7 @@ export function Options({
               className="h-4 w-4 shrink-0 accent-[var(--ink)]"
             />
             <span className="flex-1">{o.text}</span>
-            {revealed && isRight(o.id) && <span className="text-[13px] font-semibold text-leaf">Correct</span>}
+            {revealed && isRight(o.id) && <span className="text-[13px] font-semibold text-ok">✓ Correct</span>}
             {revealed && on && !isRight(o.id) && (
               <span className="text-[13px] font-semibold text-wrong">Your pick</span>
             )}

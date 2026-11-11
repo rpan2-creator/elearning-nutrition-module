@@ -84,7 +84,7 @@ export default function StartPage() {
                   value={b.id}
                   checked={background === b.id}
                   onChange={() => setBackground(b.id)}
-                  className="h-4 w-4 accent-[var(--leaf)]"
+                  className="h-4 w-4 accent-[var(--red)]"
                 />
                 {b.label}
               </label>
@@ -97,7 +97,7 @@ export default function StartPage() {
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            className="mt-1 h-4 w-4 accent-[var(--leaf)]"
+            className="mt-1 h-4 w-4 accent-[var(--red)]"
           />
           <span>
             I agree that my answers, clicks, and time on each screen are recorded anonymously for a

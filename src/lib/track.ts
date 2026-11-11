@@ -8,6 +8,7 @@ export type EventType =
   | "page_leave"
   | "click"
   | "answer"
+  | "skip"
   | "reveal"
   | "feedback_view"
   | "drag"

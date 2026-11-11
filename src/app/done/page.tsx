@@ -50,7 +50,7 @@ export default function DonePage() {
                   {sc ? `${sc.correct}/${sc.total}` : "—"}
                 </p>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-line">
-                  <motion.div className="h-full rounded-full" style={{ background: i ? "var(--leaf)" : "var(--muted)" }} initial={{ width: 0 }} animate={{ width: `${pct * 100}%` }} transition={{ delay: 0.3 + i * 0.3, duration: 0.8 }} />
+                  <motion.div className="h-full rounded-full" style={{ background: i ? "var(--red)" : "var(--muted)" }} initial={{ width: 0 }} animate={{ width: `${pct * 100}%` }} transition={{ delay: 0.3 + i * 0.3, duration: 0.8 }} />
                 </div>
               </div>
             );
@@ -63,7 +63,7 @@ export default function DonePage() {
             <ol className="mt-6 grid gap-3">
               {form.map((item) => {
                 const a = post.answers.find((x) => x.id === item.id);
-                const tone = a?.correct === true ? "var(--leaf)" : a?.correct === false ? "var(--wrong)" : "var(--line)";
+                const tone = a?.correct === true ? "var(--ok)" : a?.correct === false ? "var(--wrong)" : "var(--line)";
                 return (
                   <li key={item.id} className="rounded-2xl bg-tray p-5" style={{ boxShadow: `inset 4px 0 0 ${tone}` }}>
                     <p className="text-[13px] text-muted">{KCS[item.kc]}</p>

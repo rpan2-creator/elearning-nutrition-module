@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { KCS } from "@/content/kcs";
 
 /* Pre/post colors validated for CVD separation and contrast (dataviz validator). */
-const PRE = "#3f7fd0";
-const POST = "#2e7d4f";
+const PRE = "#8d7d7d";
+const POST = "#b50000";
 
 interface Participant {
   id: string;
@@ -399,7 +399,7 @@ function People({
                   <span className="min-w-0 break-words">
                     <span className="font-medium">{e.item_id ?? e.screen}</span>
                     {e.response != null && <span className="text-muted"> · {typeof e.response === "string" ? e.response : JSON.stringify(e.response)}</span>}
-                    {e.correct != null && <span className={e.correct ? "text-leaf" : "text-wrong"}> · {e.correct ? "correct" : "wrong"}</span>}
+                    {e.correct != null && <span className={e.correct ? "text-ok" : "text-wrong"}> · {e.correct ? "correct" : "wrong"}</span>}
                   </span>
                   <span className="text-right tabular-nums text-muted">{e.duration_ms ? secs(e.duration_ms) : ""}</span>
                 </li>

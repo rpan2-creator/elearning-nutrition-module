@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/*
+  Palette: a dining-hall tray seen in daylight.
+  Macronutrient colors are functional — every screen uses the same color for the
+  same role, so learners can read a plate by color alone.
+*/
+:root {
+  --porcelain: #f4f6f1;
+  --tray: #ffffff;
+  --ink: #1b2620;
+  --muted: #5b685f;
+  --line: #d7ded4;
+  --leaf: #2e7d4f;
+  --protein: #a23b5c;
+  --carb: #b9850f;
+  --fat: #6c7d1b;
+  --fiber: #2e7d4f;
+  --wrong: #b4412b;
+}
+
+@theme inline {
+  --color-porcelain: var(--porcelain);
+  --color-tray: var(--tray);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-leaf: var(--leaf);
+  --color-protein: var(--protein);
+  --color-carb: var(--carb);
+  --color-fat: var(--fat);
+  --color-fiber: var(--fiber);
+  --color-wrong: var(--wrong);
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--porcelain);
+}
+
+body {
+  background: var(--porcelain);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-stretch: 85%;
+}
+
+/* White-background food photos melt into the page */
+.food {
+  mix-blend-mode: multiply;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--leaf);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

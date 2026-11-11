@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/bricolage-grotesque/wdth.css";
 import "@fontsource-variable/figtree/index.css";
+import "@fontsource-variable/bodoni-moda/opsz.css";
 import "./globals.css";
 import { Analytics } from "@/lib/posthog";
 

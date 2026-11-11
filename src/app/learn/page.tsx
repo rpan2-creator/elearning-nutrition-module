@@ -79,6 +79,14 @@ export default function LearnPage() {
     window.scrollTo({ top: 0 });
   }
 
+  function jump(i: number) {
+    if (i === index) return;
+    leave();
+    track({ phase: "learn", screen: lesson.id, event_type: "click", meta: { action: "jump_lesson", to: LESSONS[i].id } });
+    setIndex(i);
+    window.scrollTo({ top: 0 });
+  }
+
   const inChapter = LESSONS.filter((l) => l.chapter === lesson.chapter);
   const pos = inChapter.indexOf(lesson);
   const Try = lesson.Try;
@@ -87,17 +95,33 @@ export default function LearnPage() {
     <>
       <FlowHeader phase="learn" right={lesson.chapter < 4 ? `Chapter ${lesson.chapter + 1} of 4` : "Wrap-up"} />
 
-      {/* chapter pill */}
-      <div className="pointer-events-none sticky top-14 z-20 flex justify-center pt-3">
-        <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-night py-1.5 pl-4 pr-3 text-[13px] text-[#fdfbee] shadow-lg">
-          <span className="font-semibold">{CHAPTERS[lesson.chapter]}</span>
-          <span className="flex gap-1.5" aria-label={`Lesson ${pos + 1} of ${inChapter.length}`}>
-            {inChapter.map((l, i) => (
-              <span key={l.id} className={`h-1.5 rounded-full transition-all ${i === pos ? "w-5 bg-red" : i < pos ? "w-1.5 bg-white/80" : "w-1.5 bg-white/30"}`} />
-            ))}
-          </span>
+      {/* lesson index: every lesson is one click away */}
+      <nav aria-label="Lessons" className="sticky top-14 z-20 border-b border-line bg-porcelain/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 py-2.5 [scrollbar-width:none]">
+          {CHAPTERS.map((c, ci) => {
+            const ls = LESSONS.map((l, li) => ({ l, li })).filter((x) => x.l.chapter === ci);
+            if (!ls.length) return null;
+            return (
+              <div key={c} className="flex shrink-0 items-center gap-1.5">
+                <span className={`mr-1 text-[12.5px] font-semibold ${ci === lesson.chapter ? "text-red" : "text-muted"}`}>{c}</span>
+                {ls.map(({ l, li }) => (
+                  <button
+                    key={l.id}
+                    onClick={() => jump(li)}
+                    aria-current={li === index ? "page" : undefined}
+                    title={l.title}
+                    className={`rounded-full px-2.5 py-1 text-[12.5px] font-semibold transition-colors ${
+                      li === index ? "bg-ink text-porcelain" : tried[l.id] ? "bg-cream-2 text-ink" : "text-ink/70 hover:bg-cream-2"
+                    }`}
+                  >
+                    {l.title.length > 18 ? l.title.split(/[,:]/)[0] : l.title}
+                  </button>
+                ))}
+              </div>
+            );
+          })}
         </div>
-      </div>
+      </nav>
 
       <main className="mx-auto max-w-6xl px-5 pb-24 pt-6">
         <motion.section key={lesson.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="bg-porcelain" aria-labelledby="lesson-title">
@@ -117,10 +141,9 @@ export default function LearnPage() {
                 <li key={s} className="flex items-center gap-2">
                   {i > 0 && <span className="h-px w-8 bg-line" />}
                   <button
-                    disabled={s === "try" && !learned[lesson.id]}
                     onClick={() => (s === "try" ? startTry() : setStep("learn"))}
                     aria-current={active ? "step" : undefined}
-                    className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 font-semibold transition-colors disabled:cursor-not-allowed ${active ? "bg-ink text-white" : complete ? "bg-cream-2 text-red" : "bg-cream-2 text-muted"}`}
+                    className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 font-semibold transition-colors ${active ? "bg-ink text-porcelain" : complete ? "bg-cream-2 text-ink" : "bg-cream-2 text-ink/70 hover:text-ink"}`}
                   >
                     <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] ${active ? "bg-white text-ink" : "bg-white/70"}`}>{complete ? "✓" : i + 1}</span>
                     {s === "learn" ? "Learn" : "Try it"}
@@ -132,7 +155,7 @@ export default function LearnPage() {
 
           <div className="mt-6">
             <LearnSlides key={lesson.id} id={lesson.id} slides={lesson.slides} onDone={markLearned} />
-            {step === "learn" && learned[lesson.id] && (
+            {step === "learn" && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex justify-end">
                 <Button onClick={startTry}>Try it yourself</Button>
               </motion.div>
@@ -159,8 +182,8 @@ export default function LearnPage() {
             <span />
           )}
           <div className="flex items-center gap-4">
-            {!tried[lesson.id] && <span className="hidden text-[14px] text-muted sm:inline">{learned[lesson.id] ? "Finish the activity to continue" : "Read through the slides first"}</span>}
-            <Button onClick={next} disabled={!tried[lesson.id] || finishing}>
+            {!tried[lesson.id] && step === "try" && <span className="hidden text-[14px] text-muted sm:inline">You can move on any time</span>}
+            <Button onClick={next} disabled={finishing}>
               {index + 1 < LESSONS.length ? "Next lesson" : finishing ? "Saving…" : "Go to the post-check"}
             </Button>
           </div>

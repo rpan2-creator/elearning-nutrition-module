@@ -45,6 +45,8 @@ export interface Slide {
   title: string;
   body: React.ReactNode;
   visual?: React.ReactNode;
+  /** Put the visual full-width under the text (for interactive visuals like the card wheel). */
+  wide?: boolean;
 }
 
 /**
@@ -78,16 +80,16 @@ export function LearnSlides({ id, slides, onDone }: { id: string; slides: Slide[
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
-            className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.05fr_1fr] lg:items-center"
+            className={`grid gap-8 p-6 sm:p-10 ${s.wide ? "" : "lg:grid-cols-[1.05fr_1fr] lg:items-center"}`}
           >
-            <div>
+            <div className={s.wide ? "max-w-3xl" : ""}>
               <p className="text-[13px] font-medium text-muted">
                 Learn · {i + 1} of {slides.length}
               </p>
               <h3 className="font-display mt-2 text-[clamp(26px,3.2vw,38px)] font-bold leading-[1.02]">{s.title}</h3>
               <div className="mt-4 grid gap-4 text-[16.5px] leading-relaxed">{s.body}</div>
             </div>
-            {s.visual && <div className="flex items-center justify-center">{s.visual}</div>}
+            {s.visual && <div className={s.wide ? "min-w-0" : "flex items-center justify-center"}>{s.visual}</div>}
           </motion.div>
         </AnimatePresence>
       </div>

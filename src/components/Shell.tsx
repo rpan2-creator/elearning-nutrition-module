@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getSession, Phase, PHASE_PATH, Session } from "@/lib/session";
+import { getSession, newSession, Phase, PHASE_PATH, saveSession, Session } from "@/lib/session";
+import { track } from "@/lib/track";
 
 const ORDER: Phase[] = ["start", "pre", "learn", "post", "done"];
 const LABEL: Record<Phase, string> = {
@@ -15,56 +15,61 @@ const LABEL: Record<Phase, string> = {
 };
 
 /**
- * Wraps each flow page. Sends the learner to the phase they are on, so the
- * pre-test cannot be retaken after learning and the order is preserved.
+ * Wraps each flow page. Every part is open: a visitor can jump straight to
+ * Pre-check, Learn, or Post-check. Arriving without a session creates one, so
+ * their clicks are still recorded (flagged as a direct entry).
  */
 export function useFlowGuard(phase: Phase): Session | null {
-  const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   useEffect(() => {
-    const s = getSession();
+    let s = getSession();
     if (!s) {
-      if (phase !== "start") router.replace("/start");
-      return;
-    }
-    if (s.phase !== phase && phase !== "start") {
-      router.replace(PHASE_PATH[s.phase]);
-      return;
+      s = newSession();
+      s.phase = phase;
+      saveSession(s);
+      fetch("/api/participant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: s.id, condition: s.condition, order: s.order, background: "direct_entry", consent: false }),
+      }).catch(() => {});
+    } else if (s.phase !== phase && phase !== "start") {
+      s = { ...s, phase };
+      saveSession(s);
     }
     setSession(s);
-  }, [phase, router]);
+    track({ phase, screen: phase, event_type: "click", meta: { action: "enter_part" } });
+  }, [phase]);
   return session;
 }
 
 export function FlowHeader({ phase, right }: { phase: Phase; right?: React.ReactNode }) {
-  const idx = ORDER.indexOf(phase);
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-porcelain/90 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-5">
-        <Link href="/" className="font-display text-[18px] font-bold">
-          What&rsquo;s in your bowl?
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-5">
+        <Link href="/" className="font-display shrink-0 text-[18px] font-bold">
+          <span className="hidden sm:inline">What&rsquo;s in your bowl?</span>
+          <span className="sm:hidden" aria-label="What's in your bowl? Home">Bowl</span>
         </Link>
-        <nav aria-label="Progress" className="hidden items-center gap-2 text-[13px] sm:flex">
-          {ORDER.slice(1, 4).map((p, i) => {
-            const state = i + 1 < idx ? "done" : i + 1 === idx ? "now" : "later";
+        <nav aria-label="Parts" className="flex items-center gap-1 text-[13px] sm:gap-2">
+          {ORDER.slice(1, 4).map((p) => {
+            const now = p === phase;
             return (
-              <span
+              <Link
                 key={p}
-                aria-current={state === "now" ? "step" : undefined}
+                href={PHASE_PATH[p]}
+                aria-current={now ? "page" : undefined}
                 className={
-                  state === "now"
-                    ? "rounded-full bg-ink px-3 py-1 font-semibold text-white"
-                    : state === "done"
-                      ? "px-3 py-1 text-red"
-                      : "px-3 py-1 text-muted"
+                  now
+                    ? "whitespace-nowrap rounded-full bg-ink px-3 py-1 font-semibold text-porcelain"
+                    : "whitespace-nowrap rounded-full px-2.5 py-1 text-ink/70 transition-colors hover:bg-cream-2 hover:text-ink sm:px-3"
                 }
               >
                 {LABEL[p]}
-              </span>
+              </Link>
             );
           })}
         </nav>
-        <div className="text-[13px] text-muted">{right}</div>
+        <div className="hidden text-[13px] text-muted md:block">{right}</div>
       </div>
     </header>
   );

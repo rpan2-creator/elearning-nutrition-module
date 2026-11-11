@@ -3,7 +3,8 @@
 import { FOODS } from "@/content/foods";
 import type { Condition } from "@/lib/session";
 import { AutoDone, Illus, Note, RoleChip, Sequence, Slide, Term } from "./kit";
-import { GuessDeck, PredictPairs, RoleTagger, SortBins } from "./cards";
+import { PredictPairs, RoleTagger, SortBins } from "./cards";
+import { CardWheel } from "./wheel";
 import { BmiScale, Estimator, HandCards, OilPlates, PlateBuilder, PlateModelVisual, PortionCounter, SnackMatch, TdeeBar } from "./activities";
 import { Explain, Practice } from "./Practice";
 import { motion } from "framer-motion";
@@ -19,13 +20,15 @@ export interface Lesson {
   tryTitle: string;
 }
 
+const NOOP = () => {};
+
 export const CHAPTERS = ["Macronutrients", "Energy", "Portions by hand", "Build a plate", "Take it with you"];
 
 function Cluster({ ids, size = "h-24 w-24" }: { ids: string[]; size?: string }) {
   return (
     <div className="flex flex-wrap items-end justify-center gap-1">
       {ids.map((id, i) => (
-        <Illus key={id} src={`/illus/${id}.svg`} className={size} bob delay={i * 0.6} />
+        <Illus key={id} src={`/food/${id}.webp`} className={size} bob delay={i * 0.6} />
       ))}
     </div>
   );
@@ -109,7 +112,7 @@ export const LESSONS: Lesson[] = [
         visual: (
           <div className="grid grid-cols-2 gap-2">
             {["bread", "egg", "olive-oil", "raspberries"].map((id, i) => (
-              <Illus key={id} src={`/illus/${id}.svg`} className="h-28 w-28" bob delay={i} />
+              <Illus key={id} src={`/food/${id}.webp`} className="h-28 w-28" bob delay={i} />
             ))}
           </div>
         ),
@@ -161,23 +164,42 @@ export const LESSONS: Lesson[] = [
             <Note tone="warn">Look at the &ldquo;Added sugars&rdquo; line on a label to tell them apart.</Note>
           </>
         ),
-        visual: <Compare label="Carbohydrate per portion" a={{ img: "/illus/soda.svg", t: "Soda, 12 oz", v: "39 g" }} b={{ img: "/illus/oatmeal.svg", t: "Oatmeal, 1 cup", v: "27 g" }} />,
+        visual: <Compare label="Carbohydrate per portion" a={{ img: "/food/soda.webp", t: "Soda, 12 oz", v: "39 g" }} b={{ img: "/food/oatmeal.webp", t: "Oatmeal, 1 cup", v: "27 g" }} />,
+      },
+      {
+        title: "Carbohydrate comes in many packages",
+        wide: true,
+        body: (
+          <p>
+            Grains, starchy vegetables, fruit, beans, and milk all bring carbohydrate. Turn the wheel, flip a few cards, then line them up — notice which
+            ones also bring fiber.
+          </p>
+        ),
+        visual: (
+          <CardWheel
+            id="1.2-explore"
+            kc="carb_amounts"
+            macro="carb"
+            onDone={NOOP}
+            foods={[FOODS.oatmeal, FOODS.sweetpotato, FOODS.apple, FOODS.quinoa, FOODS.tortilla, FOODS.brownrice, FOODS.crackers, FOODS.raspberries, FOODS.potato, FOODS.milk]}
+          />
+        ),
       },
       {
         title: "Portions change the number a lot",
         body: (
           <p>
             One cup of cooked rice — about one fist — has roughly <strong>45 g</strong> of carbohydrate, about the same as three slices of bread. A dining-hall
-            scoop is often two fists. Next you&rsquo;ll estimate a few common foods, then flip the card to check.
+            scoop is often two fists. Use that fist as your anchor: next you&rsquo;ll estimate six foods before each card flips.
           </p>
         ),
         visual: (
           <div className="flex items-center gap-3">
-            <Illus src="/illus/rice.svg" className="h-32 w-32" bob />
+            <Illus src="/food/rice.webp" className="h-32 w-32" bob />
             <span className="font-display text-[34px] font-bold">≈</span>
             <div className="flex -space-x-8">
               {[0, 1, 2].map((i) => (
-                <Illus key={i} src="/illus/bread.svg" className="h-24 w-24" bob delay={i} />
+                <Illus key={i} src="/food/bread.webp" className="h-24 w-24" bob delay={i} />
               ))}
             </div>
           </div>
@@ -185,7 +207,9 @@ export const LESSONS: Lesson[] = [
       },
     ],
     tryTitle: "Guess the carbs, then flip the card",
-    Try: ({ onDone }) => <GuessDeck id="1.2-try" kc="carb_amounts" macro="carb" foods={[FOODS.rice, FOODS.bread, FOODS.banana, FOODS.soda, FOODS.beans, FOODS.oatmeal]} onDone={onDone} />,
+    Try: ({ onDone }) => (
+      <CardWheel id="1.2-try" kc="carb_amounts" macro="carb" mode="guess" foods={[FOODS.pasta, FOODS.bread, FOODS.banana, FOODS.soda, FOODS.beans, FOODS.granola]} onDone={onDone} />
+    ),
   },
   {
     id: "1.3-protein",
@@ -204,6 +228,25 @@ export const LESSONS: Lesson[] = [
         visual: <Cluster ids={["chicken", "tofu", "egg", "edamame"]} size="h-28 w-28" />,
       },
       {
+        title: "Protein foods, side by side",
+        wide: true,
+        body: (
+          <p>
+            Animal and plant foods can both be meaningful sources. Flip the cards and line them up by protein — then check which ones also carry a lot of
+            fat.
+          </p>
+        ),
+        visual: (
+          <CardWheel
+            id="1.3-explore"
+            kc="product_diff"
+            macro="protein"
+            onDone={NOOP}
+            foods={[FOODS.salmon, FOODS.egg, FOODS.tofu, FOODS.edamame, FOODS.beans, FOODS.cheese, FOODS.jerky, FOODS.quinoa, FOODS.almonds]}
+          />
+        ),
+      },
+      {
         title: "Look-alikes can be very different",
         body: (
           <>
@@ -214,7 +257,7 @@ export const LESSONS: Lesson[] = [
             <Note>The name and the shelf don&rsquo;t tell you. The label does.</Note>
           </>
         ),
-        visual: <Compare label="Protein per cup" a={{ img: "/illus/milk.svg", t: "Dairy milk", v: "8 g" }} b={{ img: "/illus/almond-milk.svg", t: "Almond milk", v: "1 g" }} />,
+        visual: <Compare label="Protein per cup" a={{ img: "/food/milk.webp", t: "Dairy milk", v: "8 g" }} b={{ img: "/food/almond-milk.webp", t: "Almond milk", v: "1 g" }} />,
       },
     ],
     tryTitle: "Which has more protein?",
@@ -261,12 +304,26 @@ export const LESSONS: Lesson[] = [
             <p>One tablespoon of olive oil (120 kcal) has more energy than two whole cups of spinach (14 kcal). Healthy fats are worth eating — just know the amount.</p>
           </>
         ),
-        visual: <Compare label="Energy per portion" a={{ img: "/illus/olive-oil.svg", t: "Olive oil, 1 tbsp", v: "120 kcal" }} b={{ img: "/illus/spinach.svg", t: "Spinach, 2 cups", v: "14 kcal" }} />,
+        visual: <Compare label="Energy per portion" a={{ img: "/food/olive-oil.webp", t: "Olive oil, 1 tbsp", v: "120 kcal" }} b={{ img: "/food/spinach.webp", t: "Spinach, 2 cups", v: "14 kcal" }} />,
       },
       {
         title: "Fiber comes with plants",
-        body: <p>Fiber is a carbohydrate you don&rsquo;t fully digest. It supports digestion and fullness. Beans, berries, vegetables, and whole grains are the big sources.</p>,
-        visual: <Cluster ids={["raspberries", "broccoli", "black-beans", "apple"]} size="h-28 w-28" />,
+        wide: true,
+        body: (
+          <p>
+            Fiber is a carbohydrate you don&rsquo;t fully digest. It supports digestion and fullness. Beans, fruit, vegetables, and whole grains are the big
+            sources — line the wheel up by fiber to see which.
+          </p>
+        ),
+        visual: (
+          <CardWheel
+            id="1.4-explore"
+            kc="macro_roles"
+            macro="fiber"
+            onDone={NOOP}
+            foods={[FOODS.beans, FOODS.apple, FOODS.oatmeal, FOODS.sweetpotato, FOODS.edamame, FOODS.potato, FOODS.quinoa, FOODS.tomato, FOODS.bread, FOODS.banana]}
+          />
+        ),
       },
     ],
     tryTitle: "Sort: energy-dense or light?",
@@ -547,9 +604,9 @@ export const LESSONS: Lesson[] = [
         ),
         visual: (
           <div className="flex items-center gap-2">
-            <Illus src="/illus/apple.svg" className="h-28 w-28" bob />
+            <Illus src="/food/apple.webp" className="h-28 w-28" bob />
             <span className="font-display text-[40px] font-bold">+</span>
-            <Illus src="/illus/peanut-butter.svg" className="h-28 w-28" bob delay={1} />
+            <Illus src="/food/peanut-butter.webp" className="h-28 w-28" bob delay={1} />
           </div>
         ),
       },

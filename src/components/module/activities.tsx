@@ -131,10 +131,10 @@ export function BmiScale() {
 /* ═════════════ Portions ═════════════ */
 
 const HANDS = [
-  { key: "fist", img: "/illus/hand-fist.svg", name: "Your fist", amount: "≈ 1 cup", uses: "Cooked rice or pasta, cereal, raw vegetables, a glass of milk", food: "/illus/rice.svg" },
-  { key: "cupped", img: "/illus/hand-cupped.svg", name: "A cupped palm", amount: "≈ ½ cup", uses: "Cooked grains, beans, fruit, starchy sides", food: "/illus/black-beans.svg" },
-  { key: "palm", img: "/illus/hand-palm.svg", name: "Your open palm", amount: "≈ 3 oz", uses: "Cooked meat, fish, poultry, tofu — palm only, no fingers", food: "/illus/salmon.svg" },
-  { key: "thumb", img: "/illus/hand-thumb.svg", name: "Your thumb", amount: "≈ 2 tbsp", uses: "Peanut butter, salad dressing, oil, butter", food: "/illus/peanut-butter.svg" },
+  { key: "fist", img: "/food/hand-fist.webp", name: "Your fist", amount: "≈ 1 cup", uses: "Cooked rice or pasta, cereal, raw vegetables, a glass of milk", food: "/food/rice.webp" },
+  { key: "cupped", img: "/food/hand-cupped.webp", name: "A cupped palm", amount: "≈ ½ cup", uses: "Cooked grains, beans, fruit, starchy sides", food: "/food/black-beans.webp" },
+  { key: "palm", img: "/food/hand-palm.webp", name: "Your open palm", amount: "≈ 3 oz", uses: "Cooked meat, fish, poultry, tofu — palm only, no fingers", food: "/food/salmon.webp" },
+  { key: "thumb", img: "/food/hand-thumb.webp", name: "Your thumb", amount: "≈ 2 tbsp", uses: "Peanut butter, salad dressing, oil, butter", food: "/food/peanut-butter.webp" },
 ];
 
 export function HandCards({ onDone }: { onDone?: () => void }) {
@@ -205,7 +205,7 @@ export function PortionCounter({ onDone }: { onDone: () => void }) {
         <img src={t.food.img} alt="" className="illus absolute top-0 h-40 w-40" />
         <div className="relative flex gap-1">
           {Array.from({ length: t.count }).map((_, i) => (
-            <motion.img key={i} src={t.id === "rice" ? "/illus/hand-fist.svg" : t.id === "salmon" ? "/illus/hand-palm.svg" : "/illus/hand-thumb.svg"} alt="" className="illus h-20 w-20" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 + i * 0.2 }} />
+            <motion.img key={i} src={t.id === "rice" ? "/food/hand-fist.webp" : t.id === "salmon" ? "/food/hand-palm.webp" : "/food/hand-thumb.webp"} alt="" className="illus h-20 w-20" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 + i * 0.2 }} />
           ))}
         </div>
       </div>
@@ -261,11 +261,11 @@ function MiniPlate({ oil, label }: { oil: boolean; label: string }) {
     <div className="rounded-[24px] bg-tray p-4 text-center">
       <p className="font-display text-[18px] font-bold">{label}</p>
       <div className="relative mx-auto mt-2 h-40 w-60">
-        <img src="/illus/plate.svg" alt="" className="illus absolute inset-x-0 bottom-0 w-full" />
-        <img src="/illus/rice.svg" alt="" className="illus absolute left-6 top-6 h-20 w-20" />
-        <img src="/illus/chicken.svg" alt="" className="illus absolute right-6 top-5 h-20 w-20" />
-        <img src="/illus/broccoli.svg" alt="" className="illus absolute left-1/2 top-14 h-16 w-16 -translate-x-1/2" />
-        {oil && <img src="/illus/olive-oil.svg" alt="" className="illus absolute -right-2 bottom-2 h-16 w-16 rotate-[25deg]" />}
+        <img src="/food/plate.webp" alt="" className="illus absolute inset-x-0 bottom-0 w-full" />
+        <img src="/food/rice.webp" alt="" className="illus absolute left-6 top-6 h-20 w-20" />
+        <img src="/food/chicken.webp" alt="" className="illus absolute right-6 top-5 h-20 w-20" />
+        <img src="/food/broccoli.webp" alt="" className="illus absolute left-1/2 top-14 h-16 w-16 -translate-x-1/2" />
+        {oil && <img src="/food/olive-oil.webp" alt="" className="illus absolute -right-2 bottom-2 h-16 w-16 rotate-[25deg]" />}
       </div>
       <p className="mt-1 text-[13px] text-muted">{oil ? "Stir-fried in about 2 tbsp oil" : "Steamed, no added oil"}</p>
     </div>
@@ -353,9 +353,9 @@ export function PlateModelVisual() {
     return `M100 100 L${100 + R * Math.cos(a0)} ${100 + R * Math.sin(a0)} A${R} ${R} 0 ${b - a > 0.5 ? 1 : 0} 1 ${100 + R * Math.cos(a1)} ${100 + R * Math.sin(a1)} Z`;
   };
   const slices = [
-    { a: 0, b: 0.5, c: "var(--fiber)", l: "Vegetables & fruit", img: "/illus/broccoli.svg", pos: "right-2 top-14" },
-    { a: 0.5, b: 0.75, c: "var(--carb)", l: "Whole grains", img: "/illus/quinoa.svg", pos: "left-4 bottom-6" },
-    { a: 0.75, b: 1, c: "var(--protein)", l: "Protein", img: "/illus/salmon.svg", pos: "left-4 top-4" },
+    { a: 0, b: 0.5, c: "var(--fiber)", l: "Vegetables & fruit", img: "/food/broccoli.webp", pos: "right-2 top-14" },
+    { a: 0.5, b: 0.75, c: "var(--carb)", l: "Whole grains", img: "/food/quinoa.webp", pos: "left-4 bottom-6" },
+    { a: 0.75, b: 1, c: "var(--protein)", l: "Protein", img: "/food/salmon.webp", pos: "left-4 top-4" },
   ];
   return (
     <div className="relative h-72 w-72">
@@ -369,7 +369,7 @@ export function PlateModelVisual() {
       {slices.map((s) => (
         <img key={s.l} src={s.img} alt="" className={`illus absolute h-20 w-20 ${s.pos}`} />
       ))}
-      <img src="/illus/avocado.svg" alt="" className="illus absolute -bottom-2 -right-2 h-16 w-16" />
+      <img src="/food/avocado.webp" alt="" className="illus absolute -bottom-2 -right-2 h-16 w-16" />
     </div>
   );
 }
@@ -456,7 +456,7 @@ export function PlateBuilder({ onDone }: { onDone: () => void }) {
 
       <div className="rounded-[28px] bg-night p-5 text-[#fdfbee]">
         <div className="relative mx-auto h-44 w-full max-w-[300px]">
-          <img src="/illus/plate.svg" alt="" className="illus absolute inset-x-0 bottom-0 w-full" />
+          <img src="/food/plate.webp" alt="" className="illus absolute inset-x-0 bottom-0 w-full" />
           <AnimatePresence>
             {plate.map((f, i) => (
               <motion.img

@@ -44,6 +44,7 @@
   --color-fiber: var(--fiber);
   --color-wrong: var(--wrong);
   --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Bodoni Moda Variable", "Didot", Georgia, serif;
   --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -56,6 +57,11 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
 }
 
 .font-display {

@@ -54,10 +54,10 @@ function CountUp({ to, decimals = 0 }: { to: number; decimals?: number }) {
 }
 
 const FACTS: { n: number; unit: string; body: string; color: string; img: string }[] = [
-  { n: 4, unit: "kcal", body: "in every gram of carbohydrate or protein", color: "var(--carb)", img: "/illus/bread.svg" },
-  { n: 9, unit: "kcal", body: "in every gram of fat — more than twice as much", color: "var(--fat)", img: "/illus/olive-oil.svg" },
-  { n: 1, unit: "fist", body: "is about one cup of rice, pasta, or cereal", color: "var(--red)", img: "/illus/hand-fist.svg" },
-  { n: 17, unit: "g", body: "of protein in a cup of plain Greek yogurt vs. about 9 g in regular", color: "var(--protein)", img: "/illus/yogurt.svg" },
+  { n: 4, unit: "kcal", body: "in every gram of carbohydrate or protein", color: "var(--carb)", img: "/food/bread.webp" },
+  { n: 9, unit: "kcal", body: "in every gram of fat — more than twice as much", color: "var(--fat)", img: "/food/olive-oil.webp" },
+  { n: 1, unit: "fist", body: "is about one cup of rice, pasta, or cereal", color: "var(--red)", img: "/food/hand-fist.webp" },
+  { n: 17, unit: "g", body: "of protein in a cup of plain Greek yogurt vs. about 9 g in regular", color: "var(--protein)", img: "/food/yogurt.webp" },
 ];
 
 export function Facts() {
@@ -126,7 +126,7 @@ export function FourRoles() {
                 {p.foods.map((f, k) => (
                   <img
                     key={f}
-                    src={`/illus/${f}.svg`}
+                    src={`/food/${f}.webp`}
                     alt=""
                     className="illus -mx-2 h-28 w-28 transition-transform duration-500 group-hover:-translate-y-3 sm:h-32 sm:w-32"
                     style={{ transitionDelay: `${k * 40}ms`, transform: `rotate(${(k - p.foods.length / 2) * 4}deg)` }}
@@ -143,12 +143,12 @@ export function FourRoles() {
 
 /* ── The route through the module ── */
 const ROUTE = [
-  { t: "Pre-check", m: "10 min", b: "What you already know. Skip anything you're unsure of.", img: "/illus/crackers.svg" },
-  { t: "Macronutrients", m: "12 min", b: "Carbs, protein, fat, fiber — with flip cards for real foods.", img: "/illus/pasta.svg" },
-  { t: "Energy", m: "7 min", b: "Calories, BMR, daily energy use, and what BMI can't say.", img: "/illus/banana.svg" },
-  { t: "Portions by hand", m: "6 min", b: "Fist, palm, cupped hand, thumb — estimating without a scale.", img: "/illus/hand-palm.svg" },
-  { t: "Build a plate", m: "5 min", b: "Fix a lunch, pair a snack, explain why.", img: "/illus/salmon.svg" },
-  { t: "Post-check", m: "10 min", b: "See how far you moved.", img: "/illus/apple.svg" },
+  { t: "Pre-check", m: "10 min", b: "What you already know. Skip anything you're unsure of.", img: "/food/crackers.webp" },
+  { t: "Macronutrients", m: "12 min", b: "Carbs, protein, fat, fiber — with flip cards for real foods.", img: "/food/pasta.webp" },
+  { t: "Energy", m: "7 min", b: "Calories, BMR, daily energy use, and what BMI can't say.", img: "/food/banana.webp" },
+  { t: "Portions by hand", m: "6 min", b: "Fist, palm, cupped hand, thumb — estimating without a scale.", img: "/food/hand-palm.webp" },
+  { t: "Build a plate", m: "5 min", b: "Fix a lunch, pair a snack, explain why.", img: "/food/salmon.webp" },
+  { t: "Post-check", m: "10 min", b: "See how far you moved.", img: "/food/apple.webp" },
 ];
 
 export function Route() {

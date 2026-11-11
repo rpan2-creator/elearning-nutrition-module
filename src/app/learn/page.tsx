@@ -6,10 +6,20 @@ import { motion } from "framer-motion";
 import { FlowHeader, Button, useFlowGuard } from "@/components/Shell";
 import { completePhase } from "@/lib/flow";
 import { track } from "@/lib/track";
+import { isPreview } from "@/lib/session";
 import { CHAPTERS, LESSONS } from "@/components/module/lessons";
 import { LearnSlides } from "@/components/module/kit";
 
 const POS_KEY = "nm-learn-pos";
+const PROGRESS_KEY = "nm-learn-progress";
+
+function loadProgress(): { learned: Record<string, boolean>; tried: Record<string, boolean> } {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { learned: {}, tried: {} };
+}
 type Step = "learn" | "try";
 
 export default function LearnPage() {
@@ -20,15 +30,32 @@ export default function LearnPage() {
   const [learned, setLearned] = useState<Record<string, boolean>>({});
   const [tried, setTried] = useState<Record<string, boolean>>({});
   const [finishing, setFinishing] = useState(false);
+  const [preview, setPreview] = useState(false);
   const enteredAt = useRef(0);
   const tryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setPreview(isPreview());
+    const p = loadProgress();
+    setLearned(p.learned);
+    setTried(p.tried);
     try {
       const saved = Number(localStorage.getItem(POS_KEY));
       if (saved > 0 && saved < LESSONS.length) setIndex(saved);
     } catch {}
   }, []);
+
+  // keep the current lesson visible in the (horizontally scrolling) lesson index
+  useEffect(() => {
+    const el = document.querySelector('nav[aria-label="Lessons"] [aria-current="page"]');
+    el?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [index, session]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ learned, tried }));
+    } catch {}
+  }, [learned, tried]);
 
   const lesson = LESSONS[index];
 
@@ -68,6 +95,7 @@ export default function LearnPage() {
     setFinishing(true);
     try {
       localStorage.removeItem(POS_KEY);
+      localStorage.removeItem(PROGRESS_KEY);
     } catch {}
     await completePhase(session!, "learn", "post");
     router.push("/post");
@@ -87,6 +115,11 @@ export default function LearnPage() {
     window.scrollTo({ top: 0 });
   }
 
+  // A lesson opens once the one before it has its activity done (preview: all open).
+  const unlocked = (i: number) => preview || i === 0 || !!tried[LESSONS[i - 1].id];
+  const canTry = preview || !!learned[lesson.id];
+  const canNext = preview || !!tried[lesson.id];
+
   const inChapter = LESSONS.filter((l) => l.chapter === lesson.chapter);
   const pos = inChapter.indexOf(lesson);
   const Try = lesson.Try;
@@ -95,7 +128,7 @@ export default function LearnPage() {
     <>
       <FlowHeader phase="learn" right={lesson.chapter < 4 ? `Chapter ${lesson.chapter + 1} of 4` : "Wrap-up"} />
 
-      {/* lesson index: every lesson is one click away */}
+      {/* lesson index: finished lessons can be revisited; later ones open in order */}
       <nav aria-label="Lessons" className="sticky top-14 z-20 border-b border-line bg-porcelain/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 py-2.5 [scrollbar-width:none]">
           {CHAPTERS.map((c, ci) => {
@@ -108,13 +141,15 @@ export default function LearnPage() {
                   <button
                     key={l.id}
                     onClick={() => jump(li)}
+                    disabled={!unlocked(li)}
                     aria-current={li === index ? "page" : undefined}
-                    title={l.title}
-                    className={`rounded-full px-2.5 py-1 text-[12.5px] font-semibold transition-colors ${
+                    title={unlocked(li) ? l.title : `${l.title} — finish the earlier lessons first`}
+                    className={`rounded-full px-2.5 py-1 text-[12.5px] font-semibold transition-colors disabled:cursor-not-allowed disabled:text-ink/30 ${
                       li === index ? "bg-ink text-porcelain" : tried[l.id] ? "bg-cream-2 text-ink" : "text-ink/70 hover:bg-cream-2"
                     }`}
                   >
-                    {l.title.length > 18 ? l.title.split(/[,:]/)[0] : l.title}
+                    {tried[l.id] && li !== index ? "✓ " : ""}
+                    {l.short}
                   </button>
                 ))}
               </div>
@@ -141,9 +176,11 @@ export default function LearnPage() {
                 <li key={s} className="flex items-center gap-2">
                   {i > 0 && <span className="h-px w-8 bg-line" />}
                   <button
+                    disabled={s === "try" && !canTry}
+                    title={s === "try" && !canTry ? "Read the slides first" : undefined}
                     onClick={() => (s === "try" ? startTry() : setStep("learn"))}
                     aria-current={active ? "step" : undefined}
-                    className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 font-semibold transition-colors ${active ? "bg-ink text-porcelain" : complete ? "bg-cream-2 text-ink" : "bg-cream-2 text-ink/70 hover:text-ink"}`}
+                    className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${active ? "bg-ink text-porcelain" : complete ? "bg-cream-2 text-ink" : "bg-cream-2 text-ink/70 hover:text-ink"}`}
                   >
                     <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] ${active ? "bg-white text-ink" : "bg-white/70"}`}>{complete ? "✓" : i + 1}</span>
                     {s === "learn" ? "Learn" : "Try it"}
@@ -154,8 +191,8 @@ export default function LearnPage() {
           </ol>
 
           <div className="mt-6">
-            <LearnSlides key={lesson.id} id={lesson.id} slides={lesson.slides} onDone={markLearned} />
-            {step === "learn" && (
+            <LearnSlides key={lesson.id} id={lesson.id} slides={lesson.slides} onDone={markLearned} open={preview} />
+            {step === "learn" && canTry && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex justify-end">
                 <Button onClick={startTry}>Try it yourself</Button>
               </motion.div>
@@ -163,7 +200,7 @@ export default function LearnPage() {
           </div>
 
           {step === "try" && (
-            <motion.div ref={tryRef} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="mt-14 scroll-mt-28 border-t border-line pt-10">
+            <motion.div ref={tryRef} data-part="try" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="mt-14 scroll-mt-28 border-t border-line pt-10">
               <p className="text-[14px] font-semibold text-red">Try it</p>
               <h2 className="font-display mt-1 text-[clamp(28px,3.6vw,44px)] font-bold leading-[1]">{lesson.tryTitle}</h2>
               <div className="mt-8">
@@ -182,8 +219,10 @@ export default function LearnPage() {
             <span />
           )}
           <div className="flex items-center gap-4">
-            {!tried[lesson.id] && step === "try" && <span className="hidden text-[14px] text-muted sm:inline">You can move on any time</span>}
-            <Button onClick={next} disabled={finishing}>
+            {!canNext && (
+              <span className="hidden text-[14px] text-muted sm:inline">{learned[lesson.id] ? "Finish the activity to continue" : "Read through the slides first"}</span>
+            )}
+            <Button onClick={next} disabled={finishing || !canNext}>
               {index + 1 < LESSONS.length ? "Next lesson" : finishing ? "Saving…" : "Go to the post-check"}
             </Button>
           </div>

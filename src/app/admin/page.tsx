@@ -36,6 +36,7 @@ interface Event {
   correct: boolean | null;
   attempt: number | null;
   duration_ms: number | null;
+  meta: Record<string, unknown> | null;
 }
 
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
@@ -76,6 +77,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<Tab>("overview");
   const [selected, setSelected] = useState<string | null>(null);
+  const [hideTests, setHideTests] = useState(true);
 
   async function load(pw: string) {
     setLoading(true);
@@ -133,6 +135,42 @@ export default function AdminPage() {
     );
   }
 
+  return <Dashboard all={data} hideTests={hideTests} setHideTests={setHideTests} password={password} load={load} tab={tab} setTab={setTab} selected={selected} setSelected={setSelected} />;
+}
+
+/** Team previews and smoke tests are kept out of the study numbers unless shown on purpose. */
+const TEST_BACKGROUNDS = new Set(["preview", "direct_entry", "claude_smoke_test"]);
+
+function Dashboard({
+  all,
+  hideTests,
+  setHideTests,
+  password,
+  load,
+  tab,
+  setTab,
+  selected,
+  setSelected,
+}: {
+  all: { participants: Participant[]; events: Event[] };
+  hideTests: boolean;
+  setHideTests: (v: boolean) => void;
+  password: string;
+  load: (pw: string) => void;
+  tab: Tab;
+  setTab: (t: Tab) => void;
+  selected: string | null;
+  setSelected: (s: string | null) => void;
+}) {
+  const data = useMemo(() => {
+    if (!hideTests) return all;
+    const keep = new Set(all.participants.filter((p) => !TEST_BACKGROUNDS.has(p.background ?? "")).map((p) => p.id));
+    return {
+      participants: all.participants.filter((p) => keep.has(p.id)),
+      events: all.events.filter((e) => keep.has(e.participant_id) && !e.meta?.preview),
+    };
+  }, [all, hideTests]);
+  const hidden = all.participants.length - data.participants.length;
   return (
     <main className="mx-auto max-w-6xl px-5 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -141,6 +179,10 @@ export default function AdminPage() {
           <p className="mt-2 text-[14px] text-muted">
             {data.participants.length} participants · {data.events.length.toLocaleString()} events
           </p>
+          <label className="mt-2 flex items-center gap-2 text-[13px] text-muted">
+            <input type="checkbox" checked={hideTests} onChange={(e) => setHideTests(e.target.checked)} className="accent-[var(--ink)]" />
+            Hide team previews and test runs{hideTests && hidden > 0 ? ` (${hidden} hidden)` : ""}
+          </label>
         </div>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => load(password)} className="rounded-full border border-line bg-tray px-4 py-2 text-[14px] font-medium hover:border-ink">

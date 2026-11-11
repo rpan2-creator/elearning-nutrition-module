@@ -383,6 +383,21 @@ const ADDONS: { id: string; food: Food; label: string; effect: "add" | "remove" 
   { id: "oil", food: FOODS.oil, label: "Add 2 tbsp more oil", effect: "add" },
 ];
 
+/** One line of feedback per thing the learner did (or still needs), so the feedback matches the plate they see. */
+function plateNotes(chosen: string[]): { ok: boolean; text: string }[] {
+  const notes: { ok: boolean; text: string }[] = [];
+  const has = (id: string) => chosen.includes(id);
+  if (has("chicken")) notes.push({ ok: true, text: "Chicken adds the missing protein (about 26 g)." });
+  if (has("beans")) notes.push({ ok: true, text: "Black beans add the missing protein (about 8 g) and some fiber." });
+  if (!has("chicken") && !has("beans")) notes.push({ ok: false, text: "Still no real protein source — pasta alone has only a little." });
+  if (has("broccoli")) notes.push({ ok: true, text: "Broccoli adds vegetables and fiber, the other missing part of the plate." });
+  else notes.push({ ok: false, text: has("beans") ? "Beans bring some fiber, but the plate still has no vegetables." : "Still no vegetables — a fist of broccoli would add them." });
+  if (has("removepasta")) notes.push({ ok: false, text: "Removing the pasta takes away the main energy source right before practice." });
+  if (has("soda")) notes.push({ ok: false, text: "Soda adds 39 g of added sugar but no missing role." });
+  if (has("oil")) notes.push({ ok: false, text: "Extra oil adds about 240 kcal of fat but no missing role." });
+  return notes;
+}
+
 export function PlateBuilder({ onDone }: { onDone: () => void }) {
   const [chosen, setChosen] = useState<string[]>([]);
   const [checked, setChecked] = useState(false);
@@ -442,14 +457,22 @@ export function PlateBuilder({ onDone }: { onDone: () => void }) {
           </button>
         ) : (
           <div className={`mt-5 rounded-2xl p-4 text-[15px] leading-relaxed ${good ? "bg-cream-2" : "bg-[#fde9e1]"}`}>
-            <p className="font-semibold">{good ? "A balanced fix." : "One stronger option"}</p>
-            <p className="mt-1">
-              {good
-                ? "You kept the pasta for energy before practice and added the two missing roles: protein and vegetables."
-                : chosen.includes("removepasta")
-                  ? "Removing the pasta takes away the main energy source before practice — a tradeoff. Adding a protein and a fist of vegetables fixes the gaps without that loss."
-                  : "The plate was missing protein and vegetables. Adding one of each fills both gaps; soda or extra oil add energy without adding a missing role."}
-            </p>
+            <p className="font-semibold">{good ? "A balanced fix." : "Here's what your changes did"}</p>
+            <ul className="mt-2 grid gap-1.5">
+              {plateNotes(chosen).map((n) => (
+                <li key={n.text} className="grid grid-cols-[18px_1fr] gap-1.5">
+                  <span aria-hidden className={n.ok ? "text-ink" : "text-red"}>
+                    {n.ok ? "✓" : "•"}
+                  </span>
+                  <span>{n.text}</span>
+                </li>
+              ))}
+            </ul>
+            {!good && (
+              <p className="mt-2 text-muted">
+                Strongest two changes here: a protein (chicken or beans) plus a fist of broccoli — the pasta stays as fuel for practice.
+              </p>
+            )}
           </div>
         )}
       </div>

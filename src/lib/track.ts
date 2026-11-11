@@ -1,6 +1,6 @@
 "use client";
 
-import { getSession } from "./session";
+import { getSession, isPreview } from "./session";
 import { phCapture } from "./posthog";
 
 export type EventType =
@@ -73,6 +73,8 @@ export function track(e: TrackEvent) {
   const s = getSession();
   if (!s) return;
   ensureListeners();
+  const preview = isPreview();
+  if (preview) e = { ...e, meta: { ...(e.meta ?? {}), preview: true } };
   queue.push({
     ...e,
     participant_id: s.id,

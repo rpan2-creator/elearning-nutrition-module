@@ -44,17 +44,21 @@ export function Note({ children, tone = "info" }: { children: React.ReactNode; t
 export interface Slide {
   title: string;
   body: React.ReactNode;
-  visual?: React.ReactNode;
+  /** A picture, or an interactive piece that calls `done` once the learner has used it. */
+  visual?: React.ReactNode | ((done: () => void) => React.ReactNode);
   /** Put the visual full-width under the text (for interactive visuals like the card wheel). */
   wide?: boolean;
+  /** When set, Next stays locked until the visual calls `done`; the text tells the learner what to do. */
+  gate?: string;
 }
 
 /**
  * The "Learn" phase: a short sequence of illustrated concept slides.
  * Learners move at their own pace; reaching the last slide unlocks "Try it".
  */
-export function LearnSlides({ id, slides, onDone }: { id: string; slides: Slide[]; onDone: () => void }) {
+export function LearnSlides({ id, slides, onDone, open = false }: { id: string; slides: Slide[]; onDone: () => void; open?: boolean }) {
   const [i, setI] = useState(0);
+  const [cleared, setCleared] = useState<Record<number, boolean>>({});
   const seen = useRef(new Set<number>([0]));
   const enteredAt = useRef(performance.now());
 
@@ -70,6 +74,9 @@ export function LearnSlides({ id, slides, onDone }: { id: string; slides: Slide[
   }
 
   const s = slides[i];
+  const locked = !!s.gate && !cleared[i] && !open;
+  const clear = (k: number) => () => setCleared((c) => (c[k] ? c : { ...c, [k]: true }));
+  const visual = typeof s.visual === "function" ? s.visual(clear(i)) : s.visual;
   return (
     <div>
       <div className="relative min-h-[420px] overflow-hidden rounded-[32px] bg-tray">
@@ -89,7 +96,7 @@ export function LearnSlides({ id, slides, onDone }: { id: string; slides: Slide[
               <h3 className="font-display mt-2 text-[clamp(26px,3.2vw,38px)] font-bold leading-[1.02]">{s.title}</h3>
               <div className="mt-4 grid gap-4 text-[16.5px] leading-relaxed">{s.body}</div>
             </div>
-            {s.visual && <div className={s.wide ? "min-w-0" : "flex items-center justify-center"}>{s.visual}</div>}
+            {visual && <div className={s.wide ? "min-w-0" : "flex items-center justify-center"}>{visual}</div>}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -106,13 +113,16 @@ export function LearnSlides({ id, slides, onDone }: { id: string; slides: Slide[
             <span key={k} className={`h-1.5 rounded-full transition-all ${k === i ? "w-6 bg-ink" : seen.current.has(k) ? "w-1.5 bg-muted" : "w-1.5 bg-line"}`} />
           ))}
         </div>
-        <button
-          onClick={() => go(i + 1)}
-          disabled={i === slides.length - 1}
-          className="rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-white disabled:opacity-0"
-        >
-          Next
-        </button>
+        <div className="flex items-center gap-3">
+          {locked && <span className="hidden text-[13px] text-muted sm:inline">{s.gate}</span>}
+          <button
+            onClick={() => go(i + 1)}
+            disabled={i === slides.length - 1 || locked}
+            className={`rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-white disabled:cursor-not-allowed ${i === slides.length - 1 ? "invisible" : "disabled:bg-line disabled:text-muted"}`}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

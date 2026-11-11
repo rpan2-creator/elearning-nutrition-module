@@ -30,6 +30,10 @@ export default function StartPage() {
     setBusy(true);
     const s = newSession();
     s.phase = "pre";
+    try {
+      localStorage.removeItem("nm-learn-pos");
+      localStorage.removeItem("nm-learn-progress");
+    } catch {}
     saveSession(s);
     identifyParticipant(s.id, { condition: s.condition, order: s.order, background });
     try {

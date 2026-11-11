@@ -180,11 +180,6 @@ export default function LunchBallet() {
         {/* site bar, ROSSO-style */}
         <div className="absolute inset-x-0 top-0 z-50 mx-auto flex max-w-7xl items-center justify-between px-6 py-5 text-[13px] sm:px-10">
           <span className="font-serif text-[20px] font-semibold tracking-[0.02em] text-[#f6ead9] mix-blend-difference">What&rsquo;s in your bowl?</span>
-          <nav className="hidden items-center gap-6 text-[#f6ead9] mix-blend-difference sm:flex" aria-label="Parts">
-            <Link href="/pre" className="hover:underline">Pre-check</Link>
-            <Link href="/learn" className="hover:underline">Learn</Link>
-            <Link href="/post" className="hover:underline">Post-check</Link>
-          </nav>
         </div>
 
         {/* 1 · hero */}
@@ -199,9 +194,6 @@ export default function LunchBallet() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/start" className="rounded-full bg-[#f6ead9] px-7 py-3.5 text-[15px] font-semibold text-[#5a1610] transition-transform hover:scale-[1.03]">
               Start learning
-            </Link>
-            <Link href="/learn" className="rounded-full border border-[#f6ead9]/60 px-7 py-3.5 text-[15px] font-semibold text-[#f6ead9] transition-colors hover:bg-[#f6ead9]/10">
-              Browse the lessons
             </Link>
           </div>
         </motion.div>

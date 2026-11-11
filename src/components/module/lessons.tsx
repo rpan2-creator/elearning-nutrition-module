@@ -13,14 +13,14 @@ export interface Lesson {
   id: string;
   chapter: number;
   title: string;
+  /** Label in the lesson index. */
+  short: string;
   minutes: number;
   slides: Slide[];
   /** The "Try it" activity. Call onDone when the learner has completed it. */
   Try: (p: { condition: Condition; onDone: () => void }) => React.ReactNode;
   tryTitle: string;
 }
-
-const NOOP = () => {};
 
 export const CHAPTERS = ["Macronutrients", "Energy", "Portions by hand", "Build a plate", "Take it with you"];
 
@@ -75,6 +75,7 @@ export const LESSONS: Lesson[] = [
   /* ───────── Chapter 1 ───────── */
   {
     id: "1.1-macros",
+    short: "The four roles",
     chapter: 0,
     title: "Meet the macronutrients",
     minutes: 3,
@@ -136,6 +137,7 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "1.2-carbs",
+    short: "Carbohydrates",
     chapter: 0,
     title: "Carbohydrates",
     minutes: 4,
@@ -175,12 +177,13 @@ export const LESSONS: Lesson[] = [
             ones also bring fiber.
           </p>
         ),
-        visual: (
+        gate: "Flip at least 3 cards to continue",
+        visual: (done) => (
           <CardWheel
             id="1.2-explore"
             kc="carb_amounts"
             macro="carb"
-            onDone={NOOP}
+            onDone={done}
             foods={[FOODS.oatmeal, FOODS.sweetpotato, FOODS.apple, FOODS.quinoa, FOODS.tortilla, FOODS.brownrice, FOODS.crackers, FOODS.raspberries, FOODS.potato, FOODS.milk]}
           />
         ),
@@ -213,6 +216,7 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "1.3-protein",
+    short: "Protein",
     chapter: 0,
     title: "Protein",
     minutes: 3,
@@ -236,12 +240,13 @@ export const LESSONS: Lesson[] = [
             fat.
           </p>
         ),
-        visual: (
+        gate: "Flip at least 3 cards to continue",
+        visual: (done) => (
           <CardWheel
             id="1.3-explore"
             kc="product_diff"
             macro="protein"
-            onDone={NOOP}
+            onDone={done}
             foods={[FOODS.salmon, FOODS.egg, FOODS.tofu, FOODS.edamame, FOODS.beans, FOODS.cheese, FOODS.jerky, FOODS.quinoa, FOODS.almonds]}
           />
         ),
@@ -278,6 +283,7 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "1.4-fat-fiber",
+    short: "Fat & fiber",
     chapter: 0,
     title: "Fat, fiber, and energy density",
     minutes: 3,
@@ -315,12 +321,13 @@ export const LESSONS: Lesson[] = [
             sources — line the wheel up by fiber to see which.
           </p>
         ),
-        visual: (
+        gate: "Flip at least 3 cards to continue",
+        visual: (done) => (
           <CardWheel
             id="1.4-explore"
             kc="macro_roles"
             macro="fiber"
-            onDone={NOOP}
+            onDone={done}
             foods={[FOODS.beans, FOODS.apple, FOODS.oatmeal, FOODS.sweetpotato, FOODS.edamame, FOODS.potato, FOODS.quinoa, FOODS.tomato, FOODS.bread, FOODS.banana]}
           />
         ),
@@ -364,6 +371,7 @@ export const LESSONS: Lesson[] = [
   /* ───────── Chapter 2 ───────── */
   {
     id: "2.1-energy",
+    short: "Energy use",
     chapter: 1,
     title: "How much energy you use",
     minutes: 4,
@@ -429,6 +437,7 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "2.2-bmi",
+    short: "BMI",
     chapter: 1,
     title: "What BMI can and can't tell you",
     minutes: 3,
@@ -478,6 +487,7 @@ export const LESSONS: Lesson[] = [
   /* ───────── Chapter 3 ───────── */
   {
     id: "3.1-hands",
+    short: "Hand portions",
     chapter: 2,
     title: "Your hand is a measuring tool",
     minutes: 4,
@@ -508,6 +518,7 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "3.2-hidden",
+    short: "Hidden energy",
     chapter: 2,
     title: "The energy you can't see",
     minutes: 2,
@@ -530,6 +541,7 @@ export const LESSONS: Lesson[] = [
   /* ───────── Chapter 4 ───────── */
   {
     id: "4.1-plate",
+    short: "Balanced plate",
     chapter: 3,
     title: "Build a balanced plate",
     minutes: 4,
@@ -587,6 +599,7 @@ export const LESSONS: Lesson[] = [
   },
   {
     id: "4.2-snack",
+    short: "Balanced snack",
     chapter: 3,
     title: "Build a balanced snack",
     minutes: 3,
@@ -633,6 +646,7 @@ export const LESSONS: Lesson[] = [
   /* ───────── Wrap ───────── */
   {
     id: "5.1-wrap",
+    short: "Checklist",
     chapter: 4,
     title: "A checklist for any meal",
     minutes: 1,

@@ -69,3 +69,23 @@ export const PHASE_PATH: Record<Phase, string> = {
   post: "/post",
   done: "/done",
 };
+
+const PREVIEW_KEY = "nm-preview";
+
+/**
+ * Preview mode is for the design team: every part and lesson is open, and
+ * every event is flagged so it can be filtered out of the study data.
+ * Turn it on with ?preview=1 on any page, off with ?preview=0.
+ */
+export function isPreview(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const q = new URLSearchParams(window.location.search).get("preview");
+    if (q === "1") localStorage.setItem(PREVIEW_KEY, "1");
+    if (q === "0") localStorage.removeItem(PREVIEW_KEY);
+    return localStorage.getItem(PREVIEW_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+

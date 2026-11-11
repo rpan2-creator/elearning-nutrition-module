@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, MotionValue, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, MotionValue, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Food } from "@/content/foods";
 import { MACRO, Macro, KC } from "@/content/kcs";
 import { track } from "@/lib/track";
@@ -245,7 +245,9 @@ export function CardWheel({
 
   return (
     <div>
-      {/* stage */}
+      {/* stage (hidden once every card in a guessing round is done; the summary takes its place) */}
+      {!allGuessed && (
+        <>
       <div
         role="group"
         aria-roledescription="carousel"
@@ -279,7 +281,7 @@ export function CardWheel({
             type="button"
             onClick={() => go(active - 1, "arrow")}
             disabled={active === 0}
-            aria-label="Previous card"
+            aria-label="Turn the wheel left"
             className="pointer-events-auto grid h-10 w-10 place-items-center rounded-full bg-porcelain text-[18px] ring-1 ring-line transition-colors hover:bg-ink hover:text-porcelain disabled:opacity-40"
           >
             ‹
@@ -291,7 +293,7 @@ export function CardWheel({
             type="button"
             onClick={() => go(active + 1, "arrow")}
             disabled={active === foods.length - 1}
-            aria-label="Next card"
+            aria-label="Turn the wheel right"
             className="pointer-events-auto grid h-10 w-10 place-items-center rounded-full bg-porcelain text-[18px] ring-1 ring-line transition-colors hover:bg-ink hover:text-porcelain disabled:opacity-40"
           >
             ›
@@ -299,8 +301,11 @@ export function CardWheel({
         </div>
       </div>
 
+        </>
+      )}
+
       {/* panel under the wheel */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
+      <div className={`grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start ${allGuessed ? "" : "mt-6"}`}>
         {mode === "explore" ? (
           <div>
             <p className="text-[15px] leading-relaxed text-muted">
@@ -377,36 +382,42 @@ export function CardWheel({
   );
 }
 
-function GuessSummary({ foods, guesses, macro, max }: { foods: Food[]; guesses: Record<string, number>; macro: Macro; max: number }) {
+function GuessSummary({ foods, guesses, macro }: { foods: Food[]; guesses: Record<string, number>; macro: Macro; max: number }) {
   const rows = [...foods].sort((a, b) => grams(b, macro) - grams(a, macro));
+  const close = rows.filter((f) => Math.abs((guesses[f.id] ?? 0) - grams(f, macro)) <= Math.max(5, grams(f, macro) * 0.25)).length;
   return (
-    <AnimatePresence>
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="rounded-[26px] bg-tray p-5 ring-1 ring-line lg:col-span-2">
-        <p className="font-display text-[22px] font-bold">Your guesses against the labels</p>
-        <p className="mt-1 text-[14px] text-muted">Solid bar: the label. Dashed outline: your guess.</p>
-        <div className="mt-4 grid gap-2.5">
+    <div className="lg:col-span-2">
+      <p className="font-display text-[20px] font-bold">
+        You were close on {close} of {rows.length}.
+      </p>
+      <p className="mt-1 text-[14px] text-muted">Close = within 5 g or 25%. Sorted from most to least {MACRO[macro].label.toLowerCase()}.</p>
+      <table className="mt-4 w-full max-w-xl text-left text-[14px]">
+        <thead className="text-[12.5px] text-muted">
+          <tr className="border-b border-line">
+            <th className="py-2 font-medium">Food</th>
+            <th className="py-2 text-right font-medium">Your guess</th>
+            <th className="py-2 text-right font-medium">Label</th>
+            <th className="py-2 pl-4 font-medium" />
+          </tr>
+        </thead>
+        <tbody>
           {rows.map((f) => {
             const a = grams(f, macro);
             const g = guesses[f.id] ?? 0;
+            const ok = Math.abs(g - a) <= Math.max(5, a * 0.25);
             return (
-              <div key={f.id} className="grid grid-cols-[40px_minmax(0,140px)_1fr] items-center gap-3 text-[14px] sm:grid-cols-[40px_200px_1fr]">
-                <img src={f.img} alt="" className="illus h-10 w-10 object-contain" />
-                <span className="truncate">
+              <tr key={f.id} className="border-b border-line last:border-0">
+                <td className="py-2">
                   {f.name} <span className="text-muted">· {f.portion}</span>
-                </span>
-                <div className="relative h-6">
-                  <div className="absolute inset-y-0 left-0 rounded-r-[4px]" style={{ width: `${(a / max) * 100}%`, background: MACRO[macro].color }} />
-                  <div className="absolute inset-y-0 left-0 rounded-r-[4px] border-2 border-dashed border-ink" style={{ width: `${Math.min(100, (g / max) * 100)}%` }} />
-                  <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[12px] tabular-nums text-muted">
-                    {a} g · you {g}
-                  </span>
-                </div>
-              </div>
+                </td>
+                <td className="py-2 text-right tabular-nums">{g} g</td>
+                <td className="py-2 text-right font-semibold tabular-nums">{a} g</td>
+                <td className={`py-2 pl-4 text-[13px] ${ok ? "text-ink" : "text-red"}`}>{ok ? "✓ close" : g > a ? "too high" : "too low"}</td>
+              </tr>
             );
           })}
-        </div>
-      </motion.div>
-    </AnimatePresence>
+        </tbody>
+      </table>
+    </div>
   );
 }
-

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import { getSession } from "./session";
 
-const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY || process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
 
 let started = false;
